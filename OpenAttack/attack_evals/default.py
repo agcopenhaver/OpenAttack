@@ -5,7 +5,7 @@ from tqdm import tqdm
 from ..utils import visualizer, result_visualizer, check_parameters
 from ..exceptions import ClassifierNotSupportException
 from ..text_processors import DefaultTextProcessor
-import multiprocessing, logging
+import cloudpickle_multiprocess, logging
 
 logger = logging.getLogger(__name__)
 
@@ -166,8 +166,8 @@ class DefaultAttackEval(AttackEval):
                 self.__config["bleu_tool"] = BLEU()
         
         if self.__config["num_process"] > 1:
-            if multiprocessing.get_start_method() != "spawn":
-                logger.warning("Warning: multiprocessing start method '%s' may cause pytorch.cuda initialization error.", multiprocessing.get_start_method())
+            if cloudpickle_multiprocess.get_start_method() != "spawn":
+                logger.warning("Warning: multiprocessing start method '%s' may cause pytorch.cuda initialization error.", cloudpickle_multiprocess.get_start_method())
         
         
 
@@ -259,7 +259,7 @@ class DefaultAttackEval(AttackEval):
         return res
     
     def __get_pool(self):
-        return multiprocessing.Pool(self.__config["num_process"], initializer=worker_init, initargs=(self.attacker, self.classifier))
+        return cloudpickle_multiprocess.Pool(self.__config["num_process"], initializer=worker_init, initargs=(self.attacker, self.classifier))
 
     def print(self):
         print( json.dumps( self.get_result(), indent="\t" ) )
